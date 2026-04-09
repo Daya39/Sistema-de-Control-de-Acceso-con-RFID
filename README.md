@@ -1,7 +1,7 @@
 ## Sistema de Control de Acceso RFID con ESP32
 
 ## Descripción
-Sistema de control de acceso basado en tecnología RFID utilizando un ESP32 y el módulo MFRC522. El sistema lee tarjetas RFID, consulta una base de datos remota mediante HTTP y proporciona retroalimentación visual (LED RGB) y sonora (buzzer) según el resultado de la validación.
+Sistema de control de acceso basado en tecnología RFID utilizando un ESP32 y el módulo MFRC522. El sistema lee tarjetas RFID, consulta una base de datos remota mediante HTTP y proporciona retroalimentación visual (LEDs) y sonora (buzzer) según el resultado de la validación.
 
 ---
 
@@ -11,8 +11,8 @@ Sistema de control de acceso basado en tecnología RFID utilizando un ESP32 y el
 2. El ESP32 lee el UID mediante el RC522  
 3. Se envía una petición HTTP al servidor  
 4. El servidor consulta la base de datos  
-5. Retorna autorización (OK / DENIED)  
-6. El ESP32 activa LED y buzzer según el resultado  
+5. Retorna autorización  
+6. El ESP32 activa LEDs y buzzer según el resultado  
 
 ---
 
@@ -23,7 +23,7 @@ Sistema de control de acceso basado en tecnología RFID utilizando un ESP32 y el
 | ESP32 DevKit V1 | 1 |
 | Módulo RFID RC522 | 1 |
 | Tarjetas RFID Mifare Classic 1K | 2 |
-| LED RGB (cátodo común) | 1 |
+| LEDs (cátodo común) | 3 |
 | Buzzer activo | 1 |
 | Resistencias 220Ω | 3 |
 | Protoboard | 1 |
@@ -55,15 +55,6 @@ Sistema de control de acceso basado en tecnología RFID utilizando un ESP32 y el
 | LED Verde  | GPIO26 |
 | LED Azul   | GPIO27 |
 | Buzzer     | GPIO32 |
-
----
-
-## Consideraciones de hardware
-
-- El ESP32 trabaja a **3.3V**
-- Si usas un buzzer de **5V**, se recomienda:
-  - usar un transistor como etapa de conmutación  
-  - o verificar compatibilidad a 3.3V  
 
 ---
 
