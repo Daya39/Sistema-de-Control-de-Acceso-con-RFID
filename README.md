@@ -1,84 +1,114 @@
-# Automated IoT Access Control System
+# 🔐 Sistema de Control de Acceso RFID con ESP32
 
-## Project Overview
-This project focuses on the design and implementation of a secure IoT-based access control system using ESP32, RC522 RFID module, and an electric lock. The system integrates hardware components with a PHP/MySQL web interface for managing RFID badges and monitoring access logs. The project was developed as part of the "Industrie 4.0 et Usine Future" course from April 2025 to June 2025.  
- 
-## Features
-- **Secure Access Control**: RFID-based authentication using ESP32 and RC522 module.
-- **Web Interface**: PHP/MySQL-based dashboard for managing badges and viewing access logs.
-- **Hardware Integration**: Relay control for electric lock and functional testing in a local XAMPP environment.
-- **Real-Time Logging**: Logs access attempts and their statuses (GRANTED/DENIED).
- 
-## Materials Used
-- **ESP32**: Microcontroller for WiFi connectivity and RFID processing.
-- **RC522 RFID Module**: For reading RFID badges.
-- **Relay Module**: To control the electric lock.
-- **Electric Lock**: For physical access control.
-- **12V Power Supply**: To power the lock and relay.
-- **XAMPP**: Local server environment for PHP/MySQL.
+## 📋 Descripción
 
-## System Architecture
-1. **RFID Badge Scanning**: The RC522 module scans the badge and sends the UID to the ESP32.
-2. **Server Communication**: The ESP32 communicates with the PHP API hosted on a local XAMPP server.
-3. **Access Decision**: The server checks the UID against the database and returns GRANTED or DENIED.
-4. **Relay Control**: If access is granted, the relay activates the electric lock.
-5. **Logging**: All access attempts are logged in the MySQL database.
+Sistema de control de acceso basado en tecnología RFID utilizando un ESP32 y el módulo MFRC522. El sistema lee tarjetas RFID, consulta una base de datos remota mediante HTTP y proporciona retroalimentación visual (LED RGB) y sonora (buzzer) según el resultado de la validación.
 
-### Hardware Wiring Diagram
-![Hardware Wiring Diagram](docs/project_assembly.png)
+---
 
-This diagram illustrates the connections between the ESP32, RC522 RFID module, relay, and electric lock. It also includes the power supply setup for the system.
+## 🏗️ Arquitectura del sistema
 
-### System Workflow Diagram
-![System Workflow Diagram](docs/project_architecture.png)
+<img width="1637" height="365" alt="Arquitectura del sistema" src="https://github.com/user-attachments/assets/9ebb891a-4c34-4535-9362-b1389edb0fbf" />
 
-This diagram provides an overview of the system's workflow, showing how the ESP32 communicates with the PHP server and MySQL database to manage access control.
+### 🔄 Flujo del sistema
 
-## Web Interface
-### Login Page
-![Login Page](docs/login.png)
+1. El usuario acerca una tarjeta o llavero RFID  
+2. El ESP32 lee el UID mediante el módulo RC522  
+3. Se envía una petición HTTP GET al servidor con el UID  
+4. El servidor consulta la base de datos  
+5. Retorna autorización (`GRANTED` / `DENIED`)  
+6. El ESP32 activa LED y buzzer según el resultado  
 
-The login page allows administrators to authenticate and access the dashboard.
+---
 
-### Dashboard
-![Dashboard](docs/dashboard.png)
+## 🛠️ Hardware requerido
 
-The dashboard provides functionalities for:
-- Adding and removing RFID badges.
-- Viewing access logs.
-- Manually controlling the door lock.
+| Componente | Cantidad | Observaciones |
+|------------|----------|---------------|
+| ESP32 DevKit V1 | 1 | 30 o 38 pines |
+| Módulo RFID RC522 (MFRC522) | 1 | Incluye tarjeta y llavero |
+| Tarjetas RFID Mifare Classic 1K | 2 | 13.56 MHz |
+| LEDs | 3 | Indicadores de estado |
+| Buzzer activo 5V | 1 | Incluye oscilador interno |
+| Resistencias 220Ω | 3 | Para cada LED |
+| Protoboard | 1 | 830 puntos mínimo |
+| Cables Dupont | varios | M-M / M-H |
+| Cable USB tipo-C | 1 | Programación |
 
-## Arduino Code Explanation
-The `code-iot.ino` file contains the logic for:
-- **WiFi Connection**: Connects the ESP32 to the local network.
-- **RFID Scanning**: Reads the UID of RFID badges.
-- **Server Communication**: Sends the UID to the PHP API and processes the response.
-- **Relay Activation**: Activates the relay to unlock the door for a specified duration.
+---
 
-### Key Functions
-- `setup()`: Initializes the RFID module, WiFi connection, and relay.
-- `loop()`: Continuously scans for RFID badges and handles server communication.
-- `activateRelay(duration)`: Activates the relay for the given duration.
+## 🔌 Conexiones
 
+### RFID RC522 → ESP32 (SPI)
 
-## How to Run the Project
-1. **Hardware Setup**:
-   - Connect the RC522 RFID module and relay to the ESP32.
-   - Wire the electric lock to the relay.
-   - Power the system using a 12V power supply.
+| Pin RC522 | Función | GPIO ESP32 |
+|-----------|--------|------------|
+| SDA (SS)  | CS     | GPIO5  |
+| SCK       | Clock  | GPIO18 |
+| MOSI      | Data   | GPIO23 |
+| MISO      | Data   | GPIO19 |
+| RST       | Reset  | GPIO22 |
+| 3.3V      | VCC    | 3V3    |
+| GND       | GND    | GND    |
 
-2. **Software Setup**:
-   - Install XAMPP and start Apache and MySQL services.
-   - Place the PHP files (`index.php`, `api.php`, `admin.php`) in the `htdocs` directory.
-   - Import the MySQL database schema for `rfid_access`.
+---
 
-3. **Arduino Code**:
-   - Upload the `code-iot.ino` file to the ESP32.
-   - Update the WiFi credentials and server URL in the code.
+### LED RGB (cátodo común) y Buzzer
 
-4. **Testing**:
-   - Scan RFID badges and monitor access logs via the web interface.
-   - Test the relay and electric lock functionality.
+| Componente | GPIO |
+|------------|------|
+| LED Rojo   | GPIO25 |
+| LED Verde  | GPIO26 |
+| LED Azul   | GPIO27 |
+| Buzzer     | GPIO32 |
 
-## Conclusion
-This project demonstrates the integration of IoT and industrial engineering concepts to create a functional and secure access control system. The combination of hardware and software ensures real-time monitoring and management of access attempts, making it suitable for various applications in smart buildings and industrial environments.
+---
+
+### ⚠️ Consideraciones de hardware
+
+- El ESP32 trabaja a **3.3V**
+- No conectar directamente dispositivos de 5V sin adaptación
+- Para buzzer de 5V:
+  - usar transistor (recomendado)
+  - o verificar compatibilidad a 3.3V
+
+---
+
+## 🌐 Backend
+
+El sistema utiliza un servidor web para validar los UID.
+
+**Tecnologías:**
+- PHP  
+- MySQL  
+- Docker  
+
+**Endpoint:**
+http://IP_SERVIDOR/api.php?uid=XXXXXXXX
+
+**Respuesta del servidor:**
+- `GRANTED` → acceso permitido  
+- `DENIED` → acceso denegado  
+
+---
+
+## ⚙️ Configuración del firmware
+
+Editar el archivo correspondiente:
+
+```c
+#define WIFI_SSID "tu_red"
+#define WIFI_PASS "tu_password"
+#define SERVER_URL "http://IP_SERVIDOR/api.php"
+
+🐳 Despliegue del servidor con Docker
+
+🚀 Levantar el servidor
+
+Ubicarse en la carpeta y ejecutar:
+
+docker-compose up -d
+
+🛑 Detener el servidor
+
+docker-compose down
